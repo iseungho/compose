@@ -53,16 +53,11 @@ jobs:
                   docker push iseungho/demo_frontend
 
             # eC2 서버로 필요 파일 업로드(YML, nginx/*.conf)
-            # Ec2 생성 -> 탄력적 ip 연결 > 활성화 이후
-            # EC2 접속
-            # docker-compose.yml, ./nginx/default.conf 업로드
-            # 타겟 : /home/ubuntu
-            - name: EC2 서버로 필요 파일 업로드
+            - name: eC2 서버로 필요 파일 업로드
               uses: appleboy/scp-action@v0.1.7
-                # 업로드 대상이 n개이면 |로 구성 파일, 파일, ... 표현
               with:
                   host: ${{ secrets.EC2_HOST }}
-                  username: ${{ secrets.EC2_USERNAME }}
+                  username: ${{ secrets.EC2_USER }}
                   key: ${{ secrets.EC2_KEY }}
                   source: |
                       docker-compose.yml,
@@ -91,7 +86,7 @@ jobs:
               uses: appleboy/ssh-action@v1.1.0
               with:
                   host: ${{ secrets.EC2_HOST }}
-                  username: ${{ secrets.EC2_USERNAME }}
+                  username: ${{ secrets.EC2_USER }}
                   key: ${{ secrets.EC2_KEY }}
                   script_stop: true
                   # 이미지를 갱신하지는 않는다 -> 도커컴포즈 파일에 기술하여 버전관리 할수있다
@@ -99,5 +94,3 @@ jobs:
                   script: |
                       sudo docker compose down
                       sudo docker compose up -d
-        
-    
