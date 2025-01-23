@@ -1,0 +1,39 @@
+name: docker, cicd, ec2, hub
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    docker-cicd:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: jdk 17 설치
+              uses: actions/setup-java@v4
+              with:
+                  distribution: 'temurin'
+                  java-version: '17'
+
+            - name: 현재 상황 체크
+              run: |
+                  pwd
+                  ls
+            
+            - name: 도커 작업을 진행하기 위한 액션 적용
+              uses: docker/setup-buildx-action@v3
+
+            - name: 도커 로그인
+              run: echo "${{ secrets.HUB_DOKER_TOKEN }}" | dockerlogin -u "${{ secrets.HUB_DOCKER_NAME }}" --password-stdin
+
+            - name: 백엔드 이미지 생성 -> 허브(레퍼지토리) 푸시
+              run: |
+                  docker build -t iseungho/demo_backend ./backend
+                  docker push iseungho/demo_backend
+
+            - name: 프런트엔드 이미지 생성 -> 허브(레퍼지토리) 푸시
+              run: |
+                  docker build -t iseungho/demo_frontend ./frontend
+                  docker push iseungho/demo_frontend
